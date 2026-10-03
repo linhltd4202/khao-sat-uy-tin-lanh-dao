@@ -1,0 +1,380 @@
+<title>Khảo sát uy tín lãnh đạo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<style>
+/* Layout concept: one narrow "answer sheet" column; a sticky progress rule on top; results replace the sheet in place. */
+:root {
+  --bg: #eef2f1;
+  --surface: #ffffff;
+  --fg: #14201e;
+  --muted: #52625f;
+  --line: #d3dcda;
+  --accent: #1d4e89;
+  --accent-fg: #ffffff;
+  --tint: #e3ecf6;
+  --low: #b42318;
+  --mid: #a8661a;
+  --high: #1a7f4b;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1615; --surface: #172120; --fg: #e6efed; --muted: #93a5a1; --line: #2a3836;
+    --accent: #7fb2e5; --accent-fg: #0b1a2a; --tint: #1c2c3d;
+    --low: #f0877b; --mid: #e3b15b; --high: #6ccb97;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1615; --surface: #172120; --fg: #e6efed; --muted: #93a5a1; --line: #2a3836;
+  --accent: #7fb2e5; --accent-fg: #0b1a2a; --tint: #1c2c3d;
+  --low: #f0877b; --mid: #e3b15b; --high: #6ccb97;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+}
+.wrap { max-width: 800px; margin-inline: auto; padding-inline: 16px; padding-block: 0 56px; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(1.7rem, 4.5vw, 2.3rem); }
+h2 { font-size: 1.35rem; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+/* progress rule */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar-in { max-width: 800px; margin-inline: auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+.bar-in span { font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--muted); min-width: 4.5em; }
+.track { flex: 1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.track i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
+
+header.intro { padding-block: 32px 20px; display: flex; flex-direction: column; gap: 12px; }
+.how { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; gap: 10px; }
+.how ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 16px; font-size: 13.5px; }
+.how li { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.how b { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent); white-space: nowrap; }
+.field { display: grid; gap: 4px; margin-top: 4px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input {
+  font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 4px; padding: 8px 10px; width: 100%; max-width: 420px;
+}
+.field input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* items */
+#items { display: grid; gap: 10px; margin-top: 8px; }
+fieldset.item {
+  margin: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 6px;
+  padding: 14px 16px 16px; min-width: 0;
+}
+fieldset.item.missing { border-color: var(--low); box-shadow: 0 0 0 1px var(--low); }
+.pair {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "num num num" "l scale r"; column-gap: 16px; row-gap: 6px; align-items: center;
+}
+legend { padding: 0; float: left; width: 100%; }
+.num { grid-area: num; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.pole { font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.pole .vi { display: block; }
+.pole .en { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.pole.l { grid-area: l; text-align: right; }
+.pole.r { grid-area: r; text-align: left; }
+.scale { grid-area: scale; display: flex; gap: 4px; }
+.opt { position: relative; display: block; cursor: pointer; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.dot {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid var(--line); background: var(--bg); color: var(--muted);
+  font-size: 13px; font-variant-numeric: tabular-nums; transition: background .12s, border-color .12s, color .12s;
+}
+.opt:hover .dot { border-color: var(--accent); }
+.opt input:checked + .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.opt input:focus-visible + .dot { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 620px) {
+  .pair { grid-template-columns: 1fr 1fr; grid-template-areas: "num num" "l r" "scale scale"; row-gap: 10px; }
+  .pole.l { text-align: left; }
+  .pole.r { text-align: right; }
+  .scale { justify-content: space-between; }
+  .dot { width: 38px; height: 38px; }
+}
+@media (max-width: 360px) { .dot { width: 34px; height: 34px; } }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 20px; }
+button {
+  font: inherit; cursor: pointer; border-radius: 4px; padding: 10px 18px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg);
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+button:hover { border-color: var(--accent); }
+#msg { color: var(--low); font-size: 14px; min-height: 1.4em; margin-top: 8px; }
+
+/* results */
+#results { padding-block: 32px 0; display: grid; gap: 20px; }
+.dims { display: grid; gap: 12px; }
+.dim { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.dim-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; }
+.dim-head h3 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.score { font-variant-numeric: tabular-nums; font-size: 1.5rem; font-family: var(--font-display); font-weight: 600; }
+.score small { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-weight: 400; }
+.gauge { position: relative; height: 10px; display: grid; grid-template-columns: 12fr 12fr 12fr; gap: 2px; margin-top: 6px; }
+.gauge span { background: var(--line); border-radius: 2px; }
+.gauge span:nth-child(1) { background: color-mix(in srgb, var(--low) 28%, var(--line)); }
+.gauge span:nth-child(2) { background: color-mix(in srgb, var(--mid) 28%, var(--line)); }
+.gauge span:nth-child(3) { background: color-mix(in srgb, var(--high) 28%, var(--line)); }
+.gauge b { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; background: var(--fg); border-radius: 2px; }
+.gauge-labels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; border: 1px solid currentColor; }
+.pill.low { color: var(--low); } .pill.mid { color: var(--mid); } .pill.high { color: var(--high); }
+.overall { background: var(--tint); border: 1px solid var(--line); border-radius: 6px; padding: 18px 16px; display: grid; gap: 8px; }
+.overall .big { font-family: var(--font-display); font-size: 2.4rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.overall .row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+.flags { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; }
+.flags li { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.flags .n { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.note { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 6px; }
+#copyfb { width: 100%; min-height: 140px; font: 13px/1.5 var(--font-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 10px; }
+@media (prefers-reduced-motion: reduce) { .track i, .dot { transition: none; } }
+</style>
+
+<div class="bar" id="bar"><div class="bar-in"><span id="pcount">0 / 18</span><div class="track"><i id="pfill"></i></div></div></div>
+
+<main class="wrap">
+  <div id="form-view">
+    <header class="intro">
+      <p class="eyebrow">Source Credibility Measures · McCroskey &amp; Teven (1999)</p>
+      <h1>Khảo sát uy tín lãnh đạo</h1>
+      <p class="muted">Cho biết cảm nhận của bạn về người quản lý trực tiếp (hoặc người giám sát gần nhất nếu bạn hiện không đi làm). Mỗi dòng có hai tính từ đối nghĩa; hãy chọn số cho biết bạn nghiêng về phía nào và nghiêng mạnh đến đâu. Khảo sát có 18 dòng, mất khoảng 5 phút. Kết quả chỉ hiện trên màn hình của bạn và không được gửi đi đâu.</p>
+      <div class="how" aria-label="Cách chọn điểm">
+        <ul>
+          <li><b>1 hoặc 7</b> cảm giác rất mạnh</li>
+          <li><b>2 hoặc 6</b> cảm giác mạnh</li>
+          <li><b>3 hoặc 5</b> cảm giác khá yếu</li>
+          <li><b>4</b> chưa quyết định được</li>
+        </ul>
+        <p class="muted" style="font-size:13.5px">Chọn số gần tính từ bên trái nếu bạn thấy đúng với tính từ đó, gần tính từ bên phải nếu thấy đúng với tính từ kia.</p>
+        <div class="field">
+          <label for="who">Người được đánh giá (tùy chọn, chỉ để ghi vào bản kết quả)</label>
+          <input id="who" type="text" maxlength="80" placeholder="Ví dụ: Trưởng phòng Kinh doanh" autocomplete="off">
+        </div>
+      </div>
+    </header>
+
+    <form id="survey" novalidate>
+      <div id="items"></div>
+      <div id="msg" role="alert"></div>
+      <div class="actions">
+        <button type="submit" class="primary">Xem kết quả</button>
+      </div>
+    </form>
+  </div>
+
+  <section id="results" hidden aria-live="polite">
+    <div>
+      <p class="eyebrow" id="r-who">Kết quả</p>
+      <h2>Mức độ uy tín bạn cảm nhận ở lãnh đạo</h2>
+    </div>
+    <div class="overall" id="overall"></div>
+    <div class="dims" id="dims"></div>
+    <div>
+      <h2 style="font-size:1.1rem;margin-bottom:8px">Những điểm bạn chấm thấp</h2>
+      <ul class="flags" id="flags"></ul>
+    </div>
+    <div class="actions" style="margin-top:0">
+      <button type="button" class="primary" id="copy">Sao chép kết quả</button>
+      <button type="button" id="redo">Làm lại</button>
+    </div>
+    <textarea id="copyfb" readonly hidden aria-label="Kết quả dạng văn bản"></textarea>
+    <div class="note">
+      <p><b>Cách tính.</b> 18 dòng chia thành ba nhân tố, mỗi nhân tố 6 dòng. Với các dòng có tính từ tích cực nằm bên trái, điểm được đảo (điểm tính = 8 − điểm chọn) để điểm cao luôn nghĩa là uy tín cao hơn. Mỗi nhân tố có điểm từ 6 đến 42.</p>
+      <p><b>Về điểm chung.</b> Các tác giả của thang đo khuyến cáo không cộng gộp ba nhân tố thành một điểm duy nhất. Điểm chung ở trên chỉ là trung bình ba nhân tố để tiện nhìn nhanh, không phải chỉ số đã được kiểm định.</p>
+      <p><b>Về các mốc.</b> Mốc 6–18 (thấp), 19–30 (trung bình), 31–42 (cao) lấy từ tài liệu mô tả thang đo. Các mốc này và cách diễn đạt tiếng Việt chưa được kiểm định trên mẫu Việt Nam, nên hãy xem kết quả là tham khảo.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var ITEMS = [
+    { l: "Thông minh", r: "Kém thông minh", d: "nl", rev: true, le: "Intelligent", re: "Unintelligent" },
+    { l: "Chưa được đào tạo", r: "Được đào tạo bài bản", d: "nl", rev: false, le: "Untrained", re: "Trained" },
+    { l: "Quan tâm, chăm lo cho tôi", r: "Không quan tâm đến tôi", d: "tc", rev: true, le: "Cares about me", re: "Doesn't care about me" },
+    { l: "Trung thực", r: "Không trung thực", d: "dt", rev: true, le: "Honest", re: "Dishonest" },
+    { l: "Luôn nghĩ đến lợi ích của tôi", r: "Không nghĩ đến lợi ích của tôi", d: "tc", rev: true, le: "Has my interests at heart", re: "Doesn't have my interests at heart" },
+    { l: "Không đáng tin", r: "Đáng tin", d: "dt", rev: false, le: "Untrustworthy", re: "Trustworthy" },
+    { l: "Thiếu chuyên môn", r: "Có chuyên môn", d: "nl", rev: false, le: "Inexpert", re: "Expert" },
+    { l: "Vị kỷ (chỉ nghĩ cho mình)", r: "Không vị kỷ", d: "tc", rev: false, le: "Self-centered", re: "Not self-centered" },
+    { l: "Để tâm đến tôi", r: "Không để tâm đến tôi", d: "tc", rev: true, le: "Concerned with me", re: "Not concerned with me" },
+    { l: "Có danh dự", r: "Thiếu danh dự", d: "dt", rev: true, le: "Honorable", re: "Dishonorable" },
+    { l: "Am hiểu", r: "Thiếu hiểu biết", d: "nl", rev: true, le: "Informed", re: "Uninformed" },
+    { l: "Có phẩm hạnh", r: "Thiếu phẩm hạnh", d: "dt", rev: true, le: "Moral", re: "Immoral" },
+    { l: "Thiếu năng lực", r: "Có năng lực", d: "nl", rev: false, le: "Incompetent", re: "Competent" },
+    { l: "Phi đạo đức", r: "Có đạo đức", d: "dt", rev: false, le: "Unethical", re: "Ethical" },
+    { l: "Vô tâm, thiếu nhạy cảm", r: "Nhạy cảm, tinh tế", d: "tc", rev: false, le: "Insensitive", re: "Sensitive" },
+    { l: "Sáng dạ", r: "Chậm hiểu", d: "nl", rev: true, le: "Bright", re: "Stupid" },
+    { l: "Giả tạo", r: "Chân thật", d: "dt", rev: false, le: "Phony", re: "Genuine" },
+    { l: "Thiếu thấu hiểu", r: "Biết thấu hiểu", d: "tc", rev: false, le: "Not understanding", re: "Understanding" }
+  ];
+  var DIMS = {
+    nl: { name: "Năng lực", about: "Mức bạn tin lãnh đạo có chuyên môn, hiểu biết và khả năng làm tốt việc." },
+    tc: { name: "Thiện chí và sự quan tâm", about: "Mức bạn tin lãnh đạo thực sự quan tâm đến lợi ích và cảm nhận của mình." },
+    dt: { name: "Độ đáng tin cậy", about: "Mức bạn thấy lãnh đạo trung thực, có đạo đức và chân thật." }
+  };
+  var LEVEL = { low: "Thấp", mid: "Trung bình", high: "Cao" };
+  var N = ITEMS.length;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var itemsEl = $("items");
+
+  function setPole(el, vi, en) {
+    var a = document.createElement("span"); a.className = "vi"; a.textContent = vi;
+    var b = document.createElement("span"); b.className = "en"; b.textContent = en;
+    el.appendChild(a); el.appendChild(b);
+  }
+
+  ITEMS.forEach(function (it, i) {
+    var fs = document.createElement("fieldset");
+    fs.className = "item";
+    fs.id = "item" + i;
+    var opts = "";
+    for (var v = 1; v <= 7; v++) {
+      opts += '<label class="opt"><input type="radio" name="q' + i + '" value="' + v + '" aria-label="' + v + '"><span class="dot">' + v + "</span></label>";
+    }
+    fs.innerHTML =
+      '<legend class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Câu ' + (i + 1) + ": " + it.l + " (" + it.le + ") hay " + it.r + " (" + it.re + ")</legend>" +
+      '<div class="pair"><span class="num">Câu ' + (i + 1) + ' / ' + N + "</span>" +
+      '<span class="pole l"></span><div class="scale">' + opts + '</div><span class="pole r"></span></div>';
+    setPole(fs.querySelector(".pole.l"), it.l, it.le);
+    setPole(fs.querySelector(".pole.r"), it.r, it.re);
+    itemsEl.appendChild(fs);
+  });
+
+  function answers() {
+    var a = [];
+    for (var i = 0; i < N; i++) {
+      var c = document.querySelector('input[name="q' + i + '"]:checked');
+      a.push(c ? parseInt(c.value, 10) : null);
+    }
+    return a;
+  }
+  function updateProgress() {
+    var done = answers().filter(function (x) { return x !== null; }).length;
+    $("pcount").textContent = done + " / " + N;
+    $("pfill").style.width = (done / N * 100) + "%";
+    return done;
+  }
+  itemsEl.addEventListener("change", function (e) {
+    var fs = e.target.closest("fieldset");
+    if (fs) fs.classList.remove("missing");
+    updateProgress();
+    $("msg").textContent = "";
+  });
+
+  function levelOf(s) { return s <= 18 ? "low" : s <= 30 ? "mid" : "high"; }
+  function fmt(x) { return (Math.round(x * 10) / 10).toString().replace(".", ","); }
+
+  function compute(a) {
+    var sums = { nl: 0, tc: 0, dt: 0 };
+    var rec = a.map(function (v, i) { return ITEMS[i].rev ? 8 - v : v; });
+    rec.forEach(function (s, i) { sums[ITEMS[i].d] += s; });
+    return { sums: sums, rec: rec };
+  }
+
+  function gaugeHTML(score) {
+    var pos = (score - 6) / 36 * 100;
+    return '<div class="gauge"><span></span><span></span><span></span><b style="left:' + pos + '%"></b></div>' +
+      '<div class="gauge-labels"><span>6</span><span>18</span><span>30</span><span>42</span></div>';
+  }
+
+  function render(a) {
+    var res = compute(a);
+    var who = $("who").value.trim();
+    $("r-who").textContent = who ? "Kết quả · " + who : "Kết quả";
+
+    var avg = (res.sums.nl + res.sums.tc + res.sums.dt) / 3;
+    var lv = levelOf(Math.round(avg));
+    $("overall").innerHTML =
+      '<p class="eyebrow">Điểm chung tham khảo (trung bình ba nhân tố)</p>' +
+      '<div class="row"><span class="big">' + fmt(avg) + '</span><span class="muted">trên 42</span><span class="pill ' + lv + '">' + LEVEL[lv] + "</span></div>";
+
+    var html = "";
+    ["nl", "tc", "dt"].forEach(function (k) {
+      var s = res.sums[k], l = levelOf(s);
+      html += '<div class="dim"><div class="dim-head"><h3>' + DIMS[k].name + '</h3><span class="score">' + s + ' <small>/ 42</small></span></div>' +
+        '<div><span class="pill ' + l + '">' + LEVEL[l] + "</span></div>" +
+        '<p class="muted" style="font-size:14px">' + DIMS[k].about + "</p>" + gaugeHTML(s) + "</div>";
+    });
+    $("dims").innerHTML = html;
+
+    var flags = [];
+    res.rec.forEach(function (s, i) {
+      if (s <= 3) {
+        var it = ITEMS[i];
+        var neg = it.rev ? it.r + " / " + it.re : it.l + " / " + it.le;
+        flags.push('<li><span class="n">Câu ' + (i + 1) + '</span><span>Bạn thấy lãnh đạo gần với “' + neg + '” (điểm tính ' + s + "/7).</span></li>");
+      }
+    });
+    $("flags").innerHTML = flags.length ? flags.join("") : '<li class="muted">Không có câu nào được chấm ở mức thấp (điểm tính từ 3 trở xuống).</li>';
+
+    var text = "Khảo sát uy tín lãnh đạo" + (who ? " · " + who : "") + "\n" +
+      "Năng lực: " + res.sums.nl + "/42 (" + LEVEL[levelOf(res.sums.nl)] + ")\n" +
+      "Thiện chí và sự quan tâm: " + res.sums.tc + "/42 (" + LEVEL[levelOf(res.sums.tc)] + ")\n" +
+      "Độ đáng tin cậy: " + res.sums.dt + "/42 (" + LEVEL[levelOf(res.sums.dt)] + ")\n" +
+      "Điểm chung tham khảo: " + fmt(avg) + "/42 (" + LEVEL[lv] + ")";
+    $("copy").dataset.text = text;
+  }
+
+  function show(view) {
+    $("form-view").hidden = view !== "form";
+    $("results").hidden = view !== "results";
+    $("bar").hidden = view !== "form";
+    window.scrollTo(0, 0);
+  }
+
+  $("survey").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var a = answers();
+    var missing = [];
+    a.forEach(function (v, i) { if (v === null) missing.push(i); });
+    if (missing.length) {
+      missing.forEach(function (i) { $("item" + i).classList.add("missing"); });
+      $("msg").textContent = "Còn " + missing.length + " câu chưa trả lời. Câu đầu tiên là câu " + (missing[0] + 1) + ".";
+      $("item" + missing[0]).scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    render(a);
+    show("results");
+  });
+
+  $("redo").addEventListener("click", function () {
+    document.querySelectorAll("#items input:checked").forEach(function (r) { r.checked = false; });
+    $("copyfb").hidden = true;
+    $("msg").style.color = "";
+    $("msg").textContent = "";
+    updateProgress();
+    show("form");
+  });
+
+  $("copy").addEventListener("click", function () {
+    var text = this.dataset.text || "";
+    var btn = this;
+    function fallback() {
+      var ta = $("copyfb");
+      ta.value = text; ta.hidden = false; ta.focus(); ta.select();
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = "Đã sao chép";
+        setTimeout(function () { btn.textContent = "Sao chép kết quả"; }, 1800);
+      }, fallback);
+    } catch (err) { fallback(); }
+  });
+
+  updateProgress();
+})();
+</script>
